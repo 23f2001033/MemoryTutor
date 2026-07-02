@@ -1,0 +1,45 @@
+Introduction to Neural Networks
+
+A neural network is a computational model made of layers of interconnected
+nodes called neurons. Each connection has a weight, and each neuron applies
+an activation function (such as ReLU or sigmoid) to the weighted sum of its
+inputs before passing the result to the next layer.
+
+Forward propagation is the process of passing input data through the network,
+layer by layer, to produce an output prediction. During forward propagation,
+each layer computes a weighted sum of its inputs, adds a bias term, and
+applies an activation function.
+
+Backpropagation is the algorithm used to train neural networks. It works by
+computing the gradient of the loss function with respect to each weight in
+the network, using the chain rule of calculus. The chain rule lets us break
+the derivative of a composite function into the product of the derivatives
+of its parts, which is what allows gradients to flow backward from the
+output layer to the input layer, one layer at a time.
+
+Gradient descent uses the gradients computed by backpropagation to update
+the network's weights. Each weight is adjusted in the direction that reduces
+the loss, scaled by a learning rate. If the learning rate is too high,
+training can become unstable; if it is too low, training can be very slow.
+
+Overfitting occurs when a model learns the training data too well, including
+its noise, and performs poorly on new, unseen data. Common techniques to
+reduce overfitting include regularization (such as L2 regularization and
+dropout), gathering more training data, and stopping training early based
+on validation performance.
+
+Convolutional Neural Networks (CNNs) are a specialized type of neural
+network designed for grid-like data such as images. They use convolutional
+layers, which apply small filters (kernels) across the input to detect local
+patterns like edges and textures, followed by pooling layers that reduce the
+spatial size of the representation.
+
+Recurrent Neural Networks (RNNs) are designed for sequential data, such as
+text or time series. They maintain a hidden state that is updated at each
+time step, allowing information from earlier in the sequence to influence
+later predictions. A common problem with basic RNNs is the vanishing
+gradient problem, where gradients shrink exponentially as they are
+backpropagated through many time steps, making it hard to learn long-range
+dependencies. Long Short-Term Memory (LSTM) networks address this problem
+using gating mechanisms that control how information is added to or removed
+from the hidden state.

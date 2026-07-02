@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.cognee_system/
+.data_storage/
+uploads/*
+!uploads/.gitkeep
+user_memory.json
+*.egg-info/
+.pytest_cache/

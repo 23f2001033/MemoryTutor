@@ -1,0 +1,57 @@
+"""Loads .env and wires Gemini (via LiteLLM) into cognee's environment.
+
+Must be imported before any other module imports `cognee`, because cognee
+reads its LLM/embedding configuration from the environment at import/first use.
+"""
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+if not GEMINI_API_KEY:
+    raise RuntimeError(
+        "GEMINI_API_KEY is not set. Copy .env.example to .env and add your "
+        "Google AI Studio key (https://aistudio.google.com/apikey)."
+    )
+
+# NOTE: gemini-1.5-flash and text-embedding-004 (the models originally requested)
+# have been fully retired by Google (confirmed via a live 404 from the Gemini API,
+# not just a deprecation warning). Defaults below use gemini-flash-lite-latest:
+# it has a much higher free-tier request quota than gemini-2.5-flash (which caps
+# at ~20 requests/day on a free key) and, being a "-latest" alias, keeps tracking
+# Google's current lite model instead of pointing at a fixed version that will
+# eventually be retired too. Override via .env if you have a paid key and want
+# gemini-2.5-flash's higher answer quality.
+LLM_MODEL = os.environ.get("LLM_MODEL", "gemini/gemini-flash-lite-latest")
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "gemini/gemini-embedding-001")
+
+os.environ.setdefault("LLM_PROVIDER", "gemini")
+os.environ["LLM_MODEL"] = LLM_MODEL
+os.environ["LLM_API_KEY"] = GEMINI_API_KEY
+
+os.environ.setdefault("EMBEDDING_PROVIDER", "gemini")
+os.environ["EMBEDDING_MODEL"] = EMBEDDING_MODEL
+os.environ["EMBEDDING_API_KEY"] = GEMINI_API_KEY
+os.environ.setdefault("EMBEDDING_DIMENSIONS", os.environ.get("EMBEDDING_DIMENSIONS", "3072"))
+
+# Single-user local app: disable cognee's multi-tenant access control so
+# add/cognify/search fall back to an auto-created default user with no auth setup.
+os.environ.setdefault("ENABLE_BACKEND_ACCESS_CONTROL", "false")
+
+NOTES_DATASET = "course_notes"
+MEMORY_DATASET = "user_memory"
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UPLOADS_DIR = os.path.join(PROJECT_ROOT, "uploads")
+USER_MEMORY_PATH = os.path.join(PROJECT_ROOT, "user_memory.json")
+
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+# By default cognee stores its databases inside its own package directory
+# (site-packages/cognee/.cognee_system), which would wipe the "persistent"
+# memory graph every time the venv is rebuilt. Pin storage to the project
+# directory instead so it survives reinstalls.
+os.environ.setdefault("DATA_ROOT_DIRECTORY", os.path.join(PROJECT_ROOT, ".data_storage"))
+os.environ.setdefault("SYSTEM_ROOT_DIRECTORY", os.path.join(PROJECT_ROOT, ".cognee_system"))
