@@ -2,6 +2,8 @@
 
 An AI study tutor that remembers what you struggle with — across sessions.
 
+**🔗 Live demo: [memorytutor-8xubbwgxarbmzutwjeger2.streamlit.app](https://memorytutor-8xubbwgxarbmzutwjeger2.streamlit.app/)**
+
 ## The problem: AI amnesia
 
 Every chat-based tutor has the same flaw: it forgets you the moment the conversation ends. Ask it to explain backpropagation today, ask again next week, and it starts from zero — no memory of what confused you, what you've already mastered, or what your notes even said. You end up re-explaining your own context to the AI every single session. The tutor never actually gets to know you as a learner.
@@ -89,7 +91,7 @@ Open the URL Streamlit prints (usually `http://localhost:8501`), upload a PDF or
 
 ## Deploying to Streamlit Community Cloud
 
-**Live demo: _link goes here once deployed_**
+**Live demo: [memorytutor-8xubbwgxarbmzutwjeger2.streamlit.app](https://memorytutor-8xubbwgxarbmzutwjeger2.streamlit.app/)**
 
 1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
 2. **New app** → pick this repo, branch `main`, main file path `app.py`.
