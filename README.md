@@ -87,6 +87,24 @@ Open the URL Streamlit prints (usually `http://localhost:8501`), upload a PDF or
 
 > **Don't run other cognee scripts (like `scripts/smoke_test.py`) while the app is running.** Cognee's graph database uses file locking and doesn't support concurrent access from multiple processes — stop the Streamlit app first.
 
+## Deploying to Streamlit Community Cloud
+
+**Live demo: _link goes here once deployed_**
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+2. **New app** → pick this repo, branch `main`, main file path `app.py`.
+3. Before clicking Deploy, open **Advanced settings → Secrets** and paste:
+   ```toml
+   GEMINI_API_KEY = "your-key-here"
+   ```
+   (`LLM_MODEL` / `EMBEDDING_MODEL` overrides are optional, same as `.env.example`.)
+4. Click **Deploy**.
+
+Two things behave differently on Streamlit Cloud versus running locally:
+
+- **Storage is ephemeral.** Streamlit Cloud doesn't guarantee a persistent disk across app restarts/redeploys, so the knowledge graph and weak-area memory may reset when the app sleeps from inactivity and wakes back up. Cross-session memory is fully persistent when you run the app locally (that's what `DEMO.md` demonstrates); on the free cloud tier, treat it as persistent within a single "awake" period rather than indefinitely.
+- **Memory footprint.** Cognee's local graph/vector stores plus its dependency stack are heavier than a typical Streamlit app. If the free tier's ~1GB RAM limit causes crashes, that's a platform constraint, not an app bug.
+
 ## How memory works across sessions
 
 1. **Upload notes** → `cognee.add()` ingests the file, `cognee.cognify()` extracts entities and relationships into a knowledge graph, stored in `.cognee_system/` and `.data_storage/` in this project directory (not inside the venv, so it survives `pip install` reruns).

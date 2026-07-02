@@ -1,4 +1,5 @@
-"""Loads .env and wires Gemini (via LiteLLM) into cognee's environment.
+"""Loads config from .env (local) or st.secrets (Streamlit Cloud) and wires
+Gemini (via LiteLLM) into cognee's environment.
 
 Must be imported before any other module imports `cognee`, because cognee
 reads its LLM/embedding configuration from the environment at import/first use.
@@ -9,11 +10,27 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+def _get_secret(name: str, default: str = "") -> str:
+    """.env / real env vars first (local + CLI scripts), falling back to
+    Streamlit Cloud's st.secrets, which isn't exposed via os.environ."""
+    value = os.environ.get(name)
+    if value:
+        return value
+    try:
+        import streamlit as st
+
+        return st.secrets.get(name, default)
+    except Exception:
+        return default
+
+
+GEMINI_API_KEY = _get_secret("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError(
         "GEMINI_API_KEY is not set. Copy .env.example to .env and add your "
-        "Google AI Studio key (https://aistudio.google.com/apikey)."
+        "Google AI Studio key (https://aistudio.google.com/apikey), or set it "
+        "in Streamlit Cloud's app secrets."
     )
 
 # NOTE: gemini-1.5-flash and text-embedding-004 (the models originally requested)
@@ -24,8 +41,8 @@ if not GEMINI_API_KEY:
 # Google's current lite model instead of pointing at a fixed version that will
 # eventually be retired too. Override via .env if you have a paid key and want
 # gemini-2.5-flash's higher answer quality.
-LLM_MODEL = os.environ.get("LLM_MODEL", "gemini/gemini-flash-lite-latest")
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "gemini/gemini-embedding-001")
+LLM_MODEL = _get_secret("LLM_MODEL", "gemini/gemini-flash-lite-latest")
+EMBEDDING_MODEL = _get_secret("EMBEDDING_MODEL", "gemini/gemini-embedding-001")
 
 os.environ.setdefault("LLM_PROVIDER", "gemini")
 os.environ["LLM_MODEL"] = LLM_MODEL
