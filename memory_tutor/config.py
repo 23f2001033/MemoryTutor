@@ -19,18 +19,35 @@ def _get_secret(name: str, default: str = "") -> str:
         return value
     try:
         import streamlit as st
-
-        return st.secrets.get(name, default)
-    except Exception:
+    except ImportError:
         return default
+    try:
+        return st.secrets[name]
+    except (KeyError, FileNotFoundError):
+        return default
+    except Exception as exc:
+        # Anything other than "key not present" (e.g. malformed secrets.toml)
+        # means secrets couldn't be read at all. Surface it loudly instead of
+        # silently falling back to default and reporting a misleading
+        # "not set" error later.
+        raise RuntimeError(f"Could not read Streamlit secrets: {exc}") from exc
 
 
 GEMINI_API_KEY = _get_secret("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
+    hint = ""
+    try:
+        import streamlit as st
+
+        available = sorted(st.secrets.keys())
+        hint = f" Streamlit secrets currently define these keys: {available or '(none)'}."
+    except Exception:
+        pass
     raise RuntimeError(
         "GEMINI_API_KEY is not set. Copy .env.example to .env and add your "
         "Google AI Studio key (https://aistudio.google.com/apikey), or set it "
-        "in Streamlit Cloud's app secrets."
+        "in Streamlit Cloud's app secrets (Manage app -> Settings -> Secrets), "
+        "then reboot the app so the new secrets are picked up." + hint
     )
 
 # NOTE: gemini-1.5-flash and text-embedding-004 (the models originally requested)
